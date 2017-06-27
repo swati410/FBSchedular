@@ -1,18 +1,35 @@
 var express = require('express');
 var app = express();
 var path = require('path');
+var FB = require('fb');
+var accesstoken;
 
-app.get('/', function (req, res) {
-    res.send('Hello World');
-})
+FB.api('oauth/access_token', {
+    client_id: '1661598120549272',
+    client_secret: '8d57b232889eb9a213f512ab404f0c16',
+    grant_type: 'client_credentials'
+}, function (res) {
+    if(!res || res.error) {
+        console.log(!res ? 'error occurred' : res.error);
+        return;
+    }
+    console.log(JSON.stringify(res));
+    accesstoken = res.access_token;
+    //console.log(accesstoken);
 
-app.get('/schedular', function(request, response){
-    response.sendFile(path.join(__dirname +'/fbpost.html'));
+    FB.setAccessToken(accesstoken);
+    //var accessToken = FB.getAccessToken();
+
+    var body = 'My first post using facebook-node-sdk';
+    FB.api('/me', 'get', function (res) {
+        if(!res || res.error) {
+            console.log(!res ? 'error occurred' : res.error);
+            return;
+        }
+        console.log('Post Id: ' + res.name);
+    });
+
+    //console.log("new" + accessToken);
 });
 
-var server = app.listen(8080, function () {
-    var host = server.address().address
-    var port = server.address().port
 
-    //console.log("Example app listening at http://%s:%s", host, port)
-})
